@@ -1,7 +1,8 @@
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { useState } from "react";
 import styled from "styled-components";
-//import auth from "../firebase";
+import { auth } from "../firebase";
+import { useNavigate } from "react-router-dom";
 const Wrapper = styled.div`
   height: 100%;
   display: flex;
@@ -10,7 +11,6 @@ const Wrapper = styled.div`
   width: 420px;
   padding: 50px 0px;
 `;
-
 const Title = styled.h1`
   font-size: 42px;
 `;
@@ -42,6 +42,7 @@ const Error = styled.span`
 `;
 
 export default function CreateAccount() {
+  const navigate = useNavigate();
   const [isLoading, setLoading] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -61,17 +62,21 @@ export default function CreateAccount() {
   };
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (isLoading || name === "" || email === "" || password === "") return;
     try {
-      // create an account
-      ///await createUserWithEmailAndPassword(auth);
-      // set the name of the user.
-      // redirect to home page
+      setLoading(true);
+      const credential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      await updateProfile(credential.user, { displayName: name });
+      navigate("/");
     } catch (e) {
       // setError
     } finally {
       setLoading(false);
     }
-    console.log(name, email, password);
   };
   return (
     <Wrapper>
