@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { ITweet } from "./timeline";
 import { auth, db, storage } from "../firebase";
 import { useState } from "react";
-import { deleteDoc, doc } from "firebase/firestore";
+import { deleteDoc, doc, updateDoc } from "firebase/firestore";
 import { deleteObject, ref } from "firebase/storage";
 
 const Wrapper = styled.div`
@@ -57,11 +57,26 @@ export default function Tweet({ username, photo, tweet, userId, id }: ITweet) {
         await deleteObject(photoRef);
       }
     } catch (e) {
-      console.log(e);
+      //console.log(e);
     } finally {
       setLoading(false);
     }
   };
+  const onFileDelete = async () => {
+    if (user?.uid !== userId || isLoading) return;
+    try {
+      setLoading(true);
+      if (photo) {
+        const photoRef = ref(storage, `tweets/${user.uid}/${id}`);
+        await deleteObject(photoRef);
+        await updateDoc(doc(db, "tweets", id), { photo: null });
+      }
+    } catch (e) {
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Wrapper>
       <Column>
@@ -71,7 +86,10 @@ export default function Tweet({ username, photo, tweet, userId, id }: ITweet) {
           <DeleteButton onClick={onDelete}>Delete</DeleteButton>
         ) : null}
       </Column>
-      <Column>{photo ? <Photo src={photo} /> : null}</Column>
+      <Column>
+        {photo ? <Photo src={photo} /> : null}
+        {photo ? <DeleteButton onClick={onFileDelete}>X</DeleteButton> : null}
+      </Column>
     </Wrapper>
   );
 }

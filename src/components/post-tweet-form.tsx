@@ -69,7 +69,6 @@ export default function PostTweetForm() {
   };
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { files } = e.target;
-    console.log(files);
     if (files && files.length === 1 /*&& files[0].size <= MIN_SIZE*/) {
       setFile(files[0]);
     }
