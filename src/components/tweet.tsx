@@ -42,10 +42,51 @@ const DeleteButton = styled.button`
   border-radius: 5px;
   cursor: pointer;
 `;
+/////////////////////////////////
+const EditButton = styled.button`
+  background-color: white;
+  font-weight: 600;
+  border: 0;
+  font-size: 12px;
+  padding: 5px 10px;
+  text-transform: uppercase;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-right: 10px;
+`;
+
+const PhotoWrapper = styled.div`
+  display: flex;
+  gap: 5px;
+  margin-left: 20px;
+`;
+
+const EditText = styled.textarea`
+  width: 100%;
+  padding: 20px;
+  background-color: black;
+  border: 2px solid white;
+  border-radius: 20px;
+  font-size: 16px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  color: white;
+  resize: none;
+  &::placeholder {
+    font-size: 16px;
+  }
+  &:focus {
+    outline: none;
+    border-color: #1d9bf0;
+  }
+`;
 
 export default function Tweet({ username, photo, tweet, userId, id }: ITweet) {
   const user = auth.currentUser;
   const [isLoading, setLoading] = useState(false);
+  const [edit, setEdit] = useState(false);
+  const [editedTweet, setEditedTweet] = useState("");
+
   const onDelete = async () => {
     const ok = confirm("Are you sure you want to delete this tweet?");
     if (!ok || user?.uid !== userId || isLoading) return;
@@ -62,6 +103,7 @@ export default function Tweet({ username, photo, tweet, userId, id }: ITweet) {
       setLoading(false);
     }
   };
+
   const onFileDelete = async () => {
     if (user?.uid !== userId || isLoading) return;
     try {
@@ -77,18 +119,59 @@ export default function Tweet({ username, photo, tweet, userId, id }: ITweet) {
     }
   };
 
+  const onEditClick = () => {
+    if (user?.uid !== userId || isLoading) return;
+    setEdit(true);
+  };
+
+  const onSaveClick = async () => {
+    if (!edit || isLoading) return;
+    if (editedTweet === "") {
+      setEdit(false);
+      return;
+    }
+    try {
+      setLoading(true);
+      await updateDoc(doc(db, "tweets", id), { tweet: editedTweet });
+    } catch (error) {
+    } finally {
+      setLoading(false);
+      setEdit(false);
+      setEditedTweet("");
+    }
+  };
+
+  const onEdit = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setEditedTweet(e.target.value);
+  };
+
   return (
     <Wrapper>
       <Column>
         <Username>{username}</Username>
-        <Payload>{tweet}</Payload>
+        {edit ? (
+          <EditText value={editedTweet} onChange={onEdit}></EditText>
+        ) : (
+          <Payload>{tweet}</Payload>
+        )}
         {user?.uid === userId ? (
-          <DeleteButton onClick={onDelete}>Delete</DeleteButton>
+          <>
+            {edit ? (
+              <EditButton onClick={onSaveClick}>Save</EditButton>
+            ) : (
+              <EditButton onClick={onEditClick}>Edit</EditButton>
+            )}
+            <DeleteButton onClick={onDelete}>Delete</DeleteButton>
+          </>
         ) : null}
       </Column>
       <Column>
-        {photo ? <Photo src={photo} /> : null}
-        {photo ? <DeleteButton onClick={onFileDelete}>X</DeleteButton> : null}
+        {photo ? (
+          <PhotoWrapper>
+            <Photo src={photo} />
+            <DeleteButton onClick={onFileDelete}>X</DeleteButton>
+          </PhotoWrapper>
+        ) : null}
       </Column>
     </Wrapper>
   );
