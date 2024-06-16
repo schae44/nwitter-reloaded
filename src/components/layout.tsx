@@ -37,8 +37,8 @@ const MenuItem = styled.div`
   &.log-out {
     border-color: tomato;
     svg {
-      color: tomate;
-      fill: tomato;
+      color: tomato;
+      fill: none;
     }
   }
 `;

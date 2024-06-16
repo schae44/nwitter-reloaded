@@ -169,7 +169,9 @@ export default function Tweet({ username, photo, tweet, userId, id }: ITweet) {
         {photo ? (
           <PhotoWrapper>
             <Photo src={photo} />
-            <DeleteButton onClick={onFileDelete}>X</DeleteButton>
+            {user?.uid === userId ? (
+              <DeleteButton onClick={onFileDelete}>X</DeleteButton>
+            ) : null}
           </PhotoWrapper>
         ) : null}
       </Column>
