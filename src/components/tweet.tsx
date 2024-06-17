@@ -42,7 +42,7 @@ const DeleteButton = styled.button`
   border-radius: 5px;
   cursor: pointer;
 `;
-/////////////////////////////////
+
 const EditButton = styled.button`
   background-color: white;
   font-weight: 600;
