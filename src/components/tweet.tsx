@@ -98,7 +98,6 @@ export default function Tweet({ username, photo, tweet, userId, id }: ITweet) {
         await deleteObject(photoRef);
       }
     } catch (e) {
-      //console.log(e);
     } finally {
       setLoading(false);
     }

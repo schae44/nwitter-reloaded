@@ -5,10 +5,13 @@ import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { updateProfile } from "firebase/auth";
 import {
   collection,
+  doc,
   getDocs,
   limit,
+  onSnapshot,
   orderBy,
   query,
+  updateDoc,
   where,
 } from "firebase/firestore";
 import { ITweet } from "../components/timeline";
@@ -148,6 +151,9 @@ export default function Profile() {
     try {
       setNameLoading(true);
       await updateProfile(user, { displayName: edittedName });
+      for (const tweet of tweets) {
+        await updateDoc(doc(db, "tweets", tweet.id), { username: edittedName });
+      }
     } catch (error) {
     } finally {
       setNameLoading(false);
